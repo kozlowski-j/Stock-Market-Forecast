@@ -5,7 +5,6 @@ import dash_html_components as html
 from dash.dependencies import *
 import pandas as pd
 import plotly.graph_objects as go
-from plotly.graph_objs.layout import yaxis
 
 from utils import *
 from forecast import fit_arma
@@ -29,7 +28,7 @@ fig.add_trace(go.Scatter(x=data.index,
 
 fig.add_trace(go.Scatter(x=pred.index,
                          y=pred.values,
-                         name="BPI forecast",
+                         name="ARMA forecast",
                          mode='lines',
                          line_color='green',
                          line_dash='dash'))
@@ -96,29 +95,6 @@ app.layout = html.Div(children=[
 ])
 
 
-# @app.callback(
-#     Output('bpi-graph', 'figure'),
-#     [Input('datetime_RangeSlider', 'value')])
-# def update_output(value):
-#
-#     start_date = '2020-03-0'+str(value[0])
-#     end_date = '2020-03-'+str(value[1])
-#
-#     data = get_bpi(start_date, end_date)
-#
-#     figure = {
-#         'data': [
-#             {'x': data.index,
-#              'y': data.values,
-#              'type': 'line',
-#              'name': 'BPI'},
-#         ],
-#         'layout': {
-#             'title': 'BPI in March 2020'
-#         }
-#     }
-#     return figure
-
 ##get this callback working. See https://dash.plot.ly/getting-started-part-2
 @app.callback(
     Output('div1', 'children'),
@@ -129,7 +105,7 @@ def get_ranges(figure):
 
     # slider_range = figure.layout.xaxis.Rangeslider.range
     slider_range = figure['layout']['xaxis']['range']
-    print(slider_range)
+    # print(slider_range)
     output = f'''
             Author: Kuba Kozłowski
             range {slider_range}
