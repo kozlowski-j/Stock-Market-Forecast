@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+from copy import deepcopy
 
 
 def create_time_steps(length):
@@ -144,12 +145,10 @@ def plot_train_history(history, title):
     epochs = range(len(loss))
 
     plt.figure()
-
     plt.plot(epochs, loss, 'b', label='Training loss')
     plt.plot(epochs, val_loss, 'r', label='Validation loss')
     plt.title(title)
     plt.legend()
-
     plt.show()
 
 
@@ -170,14 +169,27 @@ def multi_step_plot(history, true_future, prediction):
 
 def multi_step_plot_dates(x_dates, history, y_dates, true_future, prediction=None):
 
-    plt.plot(x_dates.flatten(), history[:, 1], label='History')
+    plt.plot(x_dates.flatten(), history, label='History')
     plt.plot(y_dates.flatten(), true_future, 'b-o',
              label='True Future')
-    if prediction:
+    if prediction is not None:
         plt.plot(y_dates.flatten(), prediction, 'r-o',
                  label='Predicted Future')
     plt.legend(loc='upper left')
     plt.xticks(rotation=30)
     plt.show()
 
+
+def return_original_scale(data, scaler):
+
+    data_tmp = deepcopy(data)
+    data_tmp = np.array(data_tmp)
+
+    try:
+        data_rescaled = scaler.inverse_transform(data_tmp)
+    except ValueError or AttributeError:
+        data_tmp = data_tmp.reshape(-1, 1)
+        data_rescaled = scaler.inverse_transform(data_tmp)
+
+    return data_rescaled
 
