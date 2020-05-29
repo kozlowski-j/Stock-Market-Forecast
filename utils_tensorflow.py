@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from copy import deepcopy
@@ -179,7 +180,7 @@ def multi_step_plot(history, true_future, prediction):
 
     plt.plot(num_in, np.array(history[:, 1]), label='History')
     plt.plot(np.arange(num_out)/STEP, np.array(true_future), 'bo',
-           label='True Future')
+             label='True Future')
     if prediction.any():
         plt.plot(np.arange(num_out)/STEP, np.array(prediction), 'ro',
                  label='Predicted Future')
@@ -189,11 +190,17 @@ def multi_step_plot(history, true_future, prediction):
 
 def multi_step_plot_dates(x_dates, history, y_dates, true_future, prediction=None):
 
-    plt.plot(x_dates.flatten(), history, label='History')
-    plt.plot(y_dates.flatten(), true_future, 'b-o',
+    x_dates = [i.decode("utf-8") for i in x_dates.flatten()]
+    x_dates = pd.DatetimeIndex(x_dates)
+
+    y_dates = [i.decode("utf-8") for i in y_dates.flatten()]
+    y_dates = pd.DatetimeIndex(y_dates)
+
+    plt.plot(x_dates, history, label='History')
+    plt.plot(y_dates, true_future, 'b-o',
              label='True Future')
     if prediction is not None:
-        plt.plot(y_dates.flatten(), prediction, 'r-o',
+        plt.plot(y_dates, prediction, 'r--o',
                  label='Predicted Future')
     plt.legend(loc='upper left')
     plt.xticks(rotation=30)
