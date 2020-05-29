@@ -138,6 +138,26 @@ def prepare_dates(dataset, start_index, end_index, history_size, target_size, ba
     return batched_dates
 
 
+def prepare_test_batch(dataset, start_index, end_index, history_size,
+                       batch_size=64, buffer_size=1000):
+    data = []
+
+    start_index = start_index + history_size
+    if end_index is None:
+        end_index = len(dataset)
+
+    for i in range(start_index, end_index):
+        indices = range(i - history_size, i)
+        data.append(dataset[indices])
+
+    data = np.array(data)
+
+    data_tensors = tf.data.Dataset.from_tensor_slices(data)
+    batched_tensors = data_tensors.cache().shuffle(buffer_size).batch(batch_size).repeat()
+
+    return batched_tensors
+
+
 def plot_train_history(history, title):
     loss = history.history['loss']
     val_loss = history.history['val_loss']
