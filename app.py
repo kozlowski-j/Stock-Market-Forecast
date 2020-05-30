@@ -10,28 +10,33 @@ from utils import *
 from forecast import fit_arma
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-data = pd.read_pickle('data/bpi_data.pkl')
-data = update_bpi_file(data)
+# data = pd.read_pickle('data/bpi_data.pkl')
+# data = update_bpi_file(data)
+
+ticker = '^GSPC'
+df = load_ticker_data(ticker)
+data = df['adjclose']
+
 p = 12
 q = 0
-data.index = pd.DatetimeIndex(data.index, freq='D')
-pred_start = data.index.max()
-pred_end = pred_start + pd.Timedelta(days=30)
-pred = fit_arma(data, p, q, pred_start, pred_end)
+data.index = pd.DatetimeIndex(data.index)
+# pred_start = data.index.max()
+# pred_end = pred_start + pd.Timedelta(days=30)
+# pred = fit_arma(data, p, q, pred_start, pred_end)
 
 fig = go.Figure()
 fig.add_trace(go.Scatter(x=data.index,
                          y=data.values,
-                         name="BPI",
+                         name=ticker,
                          mode='lines',
                          line_color='deepskyblue'))
 
-fig.add_trace(go.Scatter(x=pred.index,
-                         y=pred.values,
-                         name="ARMA forecast",
-                         mode='lines',
-                         line_color='green',
-                         line_dash='dash'))
+# fig.add_trace(go.Scatter(x=pred.index,
+#                          y=pred.values,
+#                          name="ARMA forecast",
+#                          mode='lines',
+#                          line_color='green',
+#                          line_dash='dash'))
 
 fig.update_layout(
     xaxis=dict(
@@ -77,11 +82,14 @@ fig.update_layout(
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(children=[
-    html.H2(children='Bitcoin Price Index Dashboard'),
+    html.H2(children='S&P 500 Index Dashboard'),
 
-    html.H3(show_current_date()),
+    html.H4(show_current_date()),
 
-    html.H5(f'Presented data range is: {data.index.min()} - {data.index.max()}'),
+    html.H5(children='This dashboard is my learning effort during Machine Learning bootcamp. '
+                     'The ultimate purpose of creating it is learning prediction of time series data.'),
+
+    # html.H5(f'Presented data range is: {data.index.min()} - {data.index.max()}'),
 
     html.Div(
         id='div1'
