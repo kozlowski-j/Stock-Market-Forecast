@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from copy import deepcopy
+from datetime import datetime, timedelta
 
 
 def create_time_steps(length):
@@ -120,16 +121,26 @@ def prepare_dates(dataset, start_index, end_index, history_size, target_size, ba
 
     start_index = start_index + history_size
     if end_index is None:
-        end_index = len(dataset) - target_size
+        end_index = len(dataset)
 
+    # print(start_index, end_index)
     for i in range(start_index, end_index):
-        indices = range(i - history_size, i)
+        indices = range(i+1 - history_size, i+1)
 
         # Reshape data from (history_size,) to (history_size, 1)
         history_dates.append(np.reshape(dataset[indices], (history_size, 1)))
 
         if target_size == 1:
             future_dates.append(dataset[i + target_size])
+        elif end_index == len(dataset):
+            from pandas.tseries.holiday import USFederalHolidayCalendar
+            from pandas.tseries.offsets import CustomBusinessDay
+
+            business_days = CustomBusinessDay(calendar=USFederalHolidayCalendar())
+            start_date = datetime.strptime(dataset[-1], '%Y-%m-%d') + timedelta(days=1)
+            future_dates_list = pd.date_range(start=start_date, periods=target_size, freq=business_days)
+            future_dates_list = np.array(future_dates_list.date, 'str')
+            future_dates.append(future_dates_list)
         else:
             future_dates.append(dataset[i: i + target_size])
 
@@ -148,7 +159,7 @@ def prepare_test_batch(dataset, start_index, end_index, history_size,
         end_index = len(dataset)
 
     for i in range(start_index, end_index):
-        indices = range(i - history_size, i)
+        indices = range(i + 1 - history_size, i + 1)
         data.append(dataset[indices])
 
     data = np.array(data)
@@ -188,7 +199,7 @@ def multi_step_plot(history, true_future, prediction):
     plt.show()
 
 
-def multi_step_plot_dates(x_dates, history, y_dates, true_future, prediction=None):
+def multi_step_plot_dates(x_dates, history, y_dates, true_future=None, prediction=None):
 
     x_dates = [i.decode("utf-8") for i in x_dates.flatten()]
     x_dates = pd.DatetimeIndex(x_dates)
@@ -196,9 +207,14 @@ def multi_step_plot_dates(x_dates, history, y_dates, true_future, prediction=Non
     y_dates = [i.decode("utf-8") for i in y_dates.flatten()]
     y_dates = pd.DatetimeIndex(y_dates)
 
+    print(f'History date range: {x_dates[0]}, {x_dates[-1]}')
+    print(f'Future date range: {y_dates[0]}, {y_dates[-1]}')
+
     plt.plot(x_dates, history, label='History')
-    plt.plot(y_dates, true_future, 'b-o',
-             label='True Future')
+
+    if true_future is not None:
+        plt.plot(y_dates, true_future, 'b-o',
+                 label='True Future')
     if prediction is not None:
         plt.plot(y_dates, prediction, 'r--o',
                  label='Predicted Future')
