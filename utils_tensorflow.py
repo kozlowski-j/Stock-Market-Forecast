@@ -125,7 +125,7 @@ def prepare_dates(dataset, start_index, end_index, history_size, target_size, ba
 
     # print(start_index, end_index)
     for i in range(start_index, end_index):
-        indices = range(i+1 - history_size, i+1)
+        indices = range(i - history_size, i)
 
         # Reshape data from (history_size,) to (history_size, 1)
         history_dates.append(np.reshape(dataset[indices], (history_size, 1)))
