@@ -10,68 +10,6 @@ def create_time_steps(length):
     return list(range(-length, 0))
 
 
-def univariate_data(dataset, start_index, end_index, history_size, target_size):
-    data = []
-    labels = []
-
-    start_index = start_index + history_size
-    if end_index is None:
-        end_index = len(dataset) - target_size
-
-    for i in range(start_index, end_index):
-        indices = range(i - history_size, i)
-        # Reshape data from (history_size,) to (history_size, 1)
-        data.append(np.reshape(dataset[indices], (history_size, 1)))
-        labels.append(dataset[i + target_size])
-
-    return np.array(data), np.array(labels)
-
-
-def show_plot(plot_data, delta, title):
-    labels = ['History', 'True Future', 'Model Prediction']
-    marker = ['.-', 'rx', 'go']
-    time_steps = create_time_steps(plot_data[0].shape[0])
-
-    if delta:
-        future = delta
-    else:
-        future = 0
-
-    plt.title(title)
-    for i, x in enumerate(plot_data):
-        if i:
-            plt.plot(future, plot_data[i], marker[i], markersize=10,
-                     label=labels[i])
-        else:
-            plt.plot(time_steps, plot_data[i].flatten(), marker[i], label=labels[i])
-    plt.legend()
-    plt.xlim([time_steps[0], (future + 5) * 2])
-    plt.xlabel('Time-Step')
-    return plt
-
-
-def show_plot_dates(time_steps, plot_data, delta, title):
-    labels = ['History', 'True Future', 'Model Prediction']
-    marker = ['.-', 'rx', 'go']
-
-    if delta:
-        future = time_steps[-delta:]
-    else:
-        future = time_steps[-1]
-
-    plt.title(title)
-    for i, x in enumerate(plot_data):
-        if i:
-            plt.plot(future, plot_data[i], marker[i], markersize=10,
-                     label=labels[i])
-        else:
-            plt.plot(time_steps.flatten(), plot_data[i].flatten(), marker[i], label=labels[i])
-    plt.legend()
-    plt.xticks(rotation=30)
-    plt.xlabel('Time-Step')
-    return plt
-
-
 def prepare_batches(dataset, target, start_index, end_index, history_size,
                     target_size, batch_size=64, buffer_size=1000):
     data = []
@@ -184,21 +122,6 @@ def plot_train_history(history, title):
     plt.show()
 
 
-def multi_step_plot(history, true_future, prediction):
-    plt.figure(figsize=(12, 6))
-    num_in = create_time_steps(len(history))
-    num_out = len(true_future)
-
-    plt.plot(num_in, np.array(history[:, 1]), label='History')
-    plt.plot(np.arange(num_out)/STEP, np.array(true_future), 'bo',
-             label='True Future')
-    if prediction.any():
-        plt.plot(np.arange(num_out)/STEP, np.array(prediction), 'ro',
-                 label='Predicted Future')
-    plt.legend(loc='upper left')
-    plt.show()
-
-
 def multi_step_plot_dates(x_dates, history, y_dates, true_future=None, prediction=None):
 
     x_dates = [i.decode("utf-8") for i in x_dates.flatten()]
@@ -235,4 +158,5 @@ def return_original_scale(data, scaler):
         data_rescaled = scaler.inverse_transform(data_tmp)
 
     return data_rescaled
+
 
