@@ -82,3 +82,13 @@ def load_ticker_data(ticker, data_path='data', update=False):
     data.to_csv(data_path + f'\\{ticker}.csv', sep=';', decimal='.')
 
     return data
+
+
+def get_run_dir(folder_name='models'):
+    import os
+    import time
+    root_dir = os.path.join(os.curdir, folder_name)
+    run_id = time.strftime('run_%Y_%m_%d-%H_%M_%S')
+    return os.path.join(root_dir, run_id)
+
+
