@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 from copy import deepcopy
 from datetime import datetime, timedelta
+from tensorflow import keras
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense, Dropout, Bidirectional
 
 
 def create_time_steps(length):
@@ -160,3 +163,39 @@ def return_original_scale(data, scaler):
     return data_rescaled
 
 
+def build_model(n_hidden=1, n_neurons=64, learning_rate=3e-3, input_shape=(64, 7),
+                dropout=0.3, loss='mean_absolute_error', optimizer='rmsprop',
+                bidirectional=False, output_layer_neurons=1, output_layer_activation='linear'):
+    model = Sequential()
+
+    # First layer.
+    if bidirectional:
+        model.add(Bidirectional(LSTM(n_neurons, return_sequences=True), input_shape=input_shape))
+    else:
+        model.add(LSTM(n_neurons, return_sequences=True, input_shape=input_shape))
+
+        # Hidden layers.
+    for i in range(n_hidden):
+        if i == n_hidden - 1:
+            # Last hidden layer.
+            if bidirectional:
+                model.add(Bidirectional(LSTM(n_neurons, return_sequences=False)))
+            else:
+                model.add(LSTM(n_neurons, return_sequences=False))
+        else:
+            # Hidden layers
+            if bidirectional:
+                model.add(Bidirectional(LSTM(n_neurons, return_sequences=True)))
+            else:
+                model.add(LSTM(n_neurons, return_sequences=True))
+        # Add dropout after each layer.
+        model.add(Dropout(dropout))
+
+    # Output layer.
+    model.add(Dense(output_layer_neurons, activation=output_layer_activation))
+
+    optimizer = keras.optimizers.RMSprop(lr=learning_rate)
+    model.compile(loss=loss, optimizer=optimizer,
+                  metrics=["MeanAbsolutePercentageError", "RootMeanSquaredError"])
+
+    return model
