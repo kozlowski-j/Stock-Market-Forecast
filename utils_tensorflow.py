@@ -194,8 +194,20 @@ def build_model(n_hidden=1, n_neurons=64, learning_rate=3e-3, input_shape=(64, 7
     # Output layer.
     model.add(Dense(output_layer_neurons, activation=output_layer_activation))
 
-    optimizer = keras.optimizers.RMSprop(lr=learning_rate)
-    model.compile(loss=loss, optimizer=optimizer,
+    optimizer = keras.optimizers.Adam(learning_rate=learning_rate)
+    model.compile(loss=loss, # optimizer=optimizer,
                   metrics=["MeanAbsolutePercentageError", "RootMeanSquaredError"])
 
     return model
+
+
+def evaluate_model(model, test_data, loss, metrics, model_description):
+    metrics_list = [loss] + metrics
+
+    for xy in test_data.take(1):
+        x, y = xy
+        test_metrics = model.evaluate(x, y, verbose=0)
+
+    summary = pd.DataFrame([test_metrics], columns=metrics_list)
+    summary['hyperparams'] = model_description
+    return summary
