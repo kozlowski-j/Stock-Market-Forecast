@@ -42,7 +42,8 @@ def prepare_batches(dataset, target, start_index, end_index, history_size,
     return batched_tensors
 
 
-def prepare_dates(dataset, start_index, end_index, history_size, target_size, batch_size=64):
+def prepare_dates(dataset, start_index, end_index, history_size, target_size,
+                  batch_size=64, buffer_size=1000):
     """
     This functions prepares date indexes for prediction and plotting.
 
@@ -85,8 +86,10 @@ def prepare_dates(dataset, start_index, end_index, history_size, target_size, ba
         else:
             future_dates.append(dataset[i: i + target_size])
 
+    history_dates = np.array(history_dates)
+    future_dates = np.array(future_dates)
     dates_tensors = tf.data.Dataset.from_tensor_slices((history_dates, future_dates))
-    batched_dates = dates_tensors.batch(batch_size).repeat()
+    batched_dates = dates_tensors.cache().shuffle(buffer_size).batch(batch_size).repeat()
 
     return batched_dates
 
@@ -125,7 +128,7 @@ def plot_train_history(history, title):
     plt.show()
 
 
-def multi_step_plot_dates(x_dates, history, y_dates, true_future=None, prediction=None):
+def plot_ts(x_dates, history, y_dates, true_future=None, prediction=None):
 
     x_dates = [i.decode("utf-8") for i in x_dates.flatten()]
     x_dates = pd.DatetimeIndex(x_dates)
@@ -201,8 +204,12 @@ def build_model(n_hidden=1, n_neurons=64, learning_rate=3e-3, input_shape=(64, 7
     return model
 
 
-def evaluate_model(model, test_data, loss, metrics, model_description):
-    metrics_list = [loss] + metrics
+def evaluate_model(model, model_description, test_data, loss, metrics=None):
+
+    if metrics is not None:
+        metrics_list = [loss] + metrics
+    else:
+        metrics_list = [loss]
 
     for xy in test_data.take(1):
         x, y = xy
