@@ -7,7 +7,12 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from utils import *
+from utils_tensorflow import *
 from forecast import fit_arma
+
+from tensorflow import keras
+from pandas.tseries.holiday import USFederalHolidayCalendar
+from pandas.tseries.offsets import CustomBusinessDay
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 # data = pd.read_pickle('data/bpi_data.pkl')
@@ -16,6 +21,22 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 ticker = '^GSPC'
 df = load_ticker_data(ticker)
 data = df['adjclose']
+
+model = keras.models.load_model('models/keras_tuned_model.h5')
+past_history = 30
+target_size = 7
+
+dataset, _, col_scaler = prepare_dataset(df, 'adjclose')
+
+LAST_SEQUENCE = dataset.shape[0] - 1 - past_history
+test_batch = prepare_test_batch(dataset, LAST_SEQUENCE, None,  past_history).take(1)
+prediction = model.predict(test_batch)[0]
+prediction_rescaled = return_original_scale(prediction, col_scaler['adjclose'])
+
+business_days = CustomBusinessDay(calendar=USFederalHolidayCalendar())
+start_date = datetime.strptime(df.index[-1], '%Y-%m-%d') + timedelta(days=1)
+prediction_index = pd.date_range(start=start_date, periods=target_size, freq=business_days)
+
 
 p = 12
 q = 0
@@ -30,6 +51,13 @@ fig.add_trace(go.Scatter(x=data.index,
                          name=ticker,
                          mode='lines',
                          line_color='deepskyblue'))
+
+fig.add_trace(go.Scatter(x=prediction_index,
+                         y=prediction_rescaled.flatten(),
+                         name="Tensorflow forecast",
+                         mode='lines',
+                         line_color='green',
+                         line_dash='dash'))
 
 # fig.add_trace(go.Scatter(x=pred.index,
 #                          y=pred.values,

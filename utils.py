@@ -2,6 +2,7 @@ import datetime
 import pandas as pd
 from yahoo_fin import stock_info as si
 import os
+from sklearn.preprocessing import MinMaxScaler
 
 
 def get_bpi(start_date, end_date):
@@ -92,3 +93,30 @@ def get_run_dir(folder_name='models'):
     return os.path.join(root_dir, run_id)
 
 
+def prepare_dataset(data, target_variable):
+    df = data.copy()
+    history_start = '2012-01-01'
+    df = df[df.index >= history_start]
+    df.dropna(inplace=True)
+
+    features_considered = ['open', 'high', 'low', 'close', 'adjclose', 'volume']
+    features = df[df['open'].isna() == False][features_considered]
+
+    data_scaled = features.copy()
+
+    TRAIN_SPLIT = int(df.shape[0] * 0.75)
+
+    column_scaler = {}
+    # scale the data (prices) from 0 to 1
+    for column in data_scaled.columns:
+        column_values = data_scaled[column].values.reshape(-1, 1)
+        # Fit only on training data
+        scaler = MinMaxScaler()
+        scaler.fit(column_values[:TRAIN_SPLIT])
+        data_scaled[column] = scaler.transform(column_values)
+        column_scaler[column] = scaler
+
+    target = data_scaled[target_variable].values
+    dataset = data_scaled.values
+
+    return dataset, target, column_scaler
