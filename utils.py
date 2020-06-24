@@ -1,8 +1,11 @@
 import datetime
+import numpy as np
 import pandas as pd
 from yahoo_fin import stock_info as si
 import os
+import time
 from sklearn.preprocessing import MinMaxScaler
+from tensorflow import keras
 
 
 def get_bpi(start_date, end_date):
@@ -58,29 +61,33 @@ def show_current_date():
     return 'Today is: ' + str(datetime.datetime.now().strftime('%Y-%m-%d'))
 
 
-def load_ticker_data(ticker, data_path='data', update=False):
+def load_ticker_data(ticker, data_path='data', update=False,
+                     start_history=None, end_history=None):
 
     data = None
 
     try:
         for file in os.listdir(data_path):
             if file.startswith(f"{ticker}"):
-                data = pd.read_csv(os.path.join(data_path, file),
-                                   sep=';', decimal='.', index_col=0)
-                print('Data imported from file.')
+                data = pd.read_pickle(os.path.join(data_path, file))
+                print(f'{ticker} data imported from file.')
         if data is None:
             raise FileNotFoundError
     except FileNotFoundError:
-        data = si.get_data(ticker)
-        print('Data imported from API.')
+        try:
+            data = si.get_data(ticker, start_date=start_history, end_date=end_history)
+            print(f'{ticker} data imported from API.')
+        except (KeyError, AssertionError):
+            return pd.DataFrame()
 
     if update:
         last_day = data.index.max()
-        new_data = si.get_data(ticker, start_date=last_day)
-        data = data.append(new_data)
+        if last_day < datetime.datetime.now():
+            new_data = si.get_data(ticker, start_date=last_day)
+            data = data.append(new_data)
 
     # TODO: Save file only if there is new data
-    data.to_csv(data_path + f'\\{ticker}.csv', sep=';', decimal='.')
+    data.to_pickle(data_path + f'\\{ticker}.pkl')
 
     return data
 
@@ -120,3 +127,42 @@ def prepare_dataset(data, target_variable):
     dataset = data_scaled.values
 
     return dataset, target, column_scaler
+
+
+def get_tickers_history(tickers, start_history, end_history=None):
+
+    tickers_data = []
+    maxlen = 0
+
+    for ticker in tickers:
+        try:
+            t_data = load_ticker_data(ticker, update=False,
+                                  start_history=start_history, end_history=end_history)
+            t_data.drop(columns='ticker', inplace=True)
+            # Add ticker suffix to columns' names.
+            t_data.columns = [col+'_'+ticker for col in t_data.columns]
+            # Pad sequences if they are shorter than longest
+            # (for indexes which appeared on market after 'start_history').
+            # maxlen = np.max([maxlen, t_data.shape[0]])
+            # if maxlen > t_data.shape[0]:
+            #     t_data = keras.preprocessing.sequence.pad_sequences(t_data, maxlen)
+        except KeyError:
+            t_data = pd.DataFrame()
+        tickers_data.append(t_data)
+        time.sleep(1)
+
+    data_output = pd.concat(tickers_data, axis=1)
+
+    return data_output
+
+
+def chunk_it(seq, num):
+    avg = len(seq) / float(num)
+    out = []
+    last = 0.0
+
+    while last < len(seq):
+        out.append(seq[int(last):int(last + avg)])
+        last += avg
+
+    return out
