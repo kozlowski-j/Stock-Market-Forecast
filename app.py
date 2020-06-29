@@ -19,7 +19,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 # data = update_bpi_file(data)
 
 ticker = '^GSPC'
-df = load_ticker_data(ticker)
+df = load_ticker_data(ticker, start_history='2012-01-01')
 data = df['adjclose']
 
 model = keras.models.load_model('models/keras_tuned_model.h5')
@@ -34,7 +34,11 @@ prediction = model.predict(test_batch)[0]
 prediction_rescaled = return_original_scale(prediction, col_scaler['adjclose'])
 
 business_days = CustomBusinessDay(calendar=USFederalHolidayCalendar())
-start_date = datetime.strptime(df.index[-1], '%Y-%m-%d') + timedelta(days=1)
+try:
+    start_date = datetime.strptime(df.index[-1], '%Y-%m-%d') + timedelta(days=1)
+except TypeError:
+    start_date = df.index[-1] + timedelta(days=1)
+
 prediction_index = pd.date_range(start=start_date, periods=target_size, freq=business_days)
 
 
@@ -131,7 +135,7 @@ app.layout = html.Div(children=[
 ])
 
 
-##get this callback working. See https://dash.plot.ly/getting-started-part-2
+# TODO: get this callback working. See https://dash.plot.ly/getting-started-part-2
 @app.callback(
     Output('div1', 'children'),
     [Input('bpi-graph', 'figure')])
