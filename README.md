@@ -12,4 +12,12 @@ Aim of the project is to develop a Deep Learning algorithm for time series forec
 - Model built using **Tensorflow Keras**
 - Hyperparameters optimisation using **Keras-Tuner**
 - Result visualisation using **Dash**
-- Other packages: Pandas, Numpy, Scikit-learn
+- Other used technologies: Pandas, Numpy, Scikit-learn
+
+## 3. Links
+- Time series data transformation and forecast
+   - https://www.tensorflow.org/tutorials/structured_data/time_series
+
+- Dash app structure and layouts
+  - https://dash.plotly.com/urls
+  - https://dash-bootstrap-components.opensource.faculty.ai/docs/components/layout/
