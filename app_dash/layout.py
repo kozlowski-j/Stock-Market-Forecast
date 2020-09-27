@@ -1,7 +1,7 @@
 import dash_core_components as dcc
 import dash_html_components as html
-from app import app
-from app_dash.utils import show_current_date
+
+from utils import show_current_date
 
 
 main_layout = html.Div(children=[
@@ -15,12 +15,18 @@ main_layout = html.Div(children=[
     # html.H5(f'Presented data range is: {data.index.min()} - {data.index.max()}'),
 
     html.Div(
-        id='div1'
+        dcc.Dropdown(
+            id='ticker-dropdown',
+            options=[
+                {'label': '^GSPC', 'value': '^GSPC'}
+            ],
+            value='^GSPC'
+        )
+
     ),
 
     dcc.Graph(
-        id='bpi-graph',
-        figure=fig
+        id='main-graph'
     )
 
 ])

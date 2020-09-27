@@ -61,7 +61,7 @@ def show_current_date():
     return 'Today is: ' + str(datetime.datetime.now().strftime('%Y-%m-%d'))
 
 
-def load_ticker_data(ticker, data_path='data', update=False,
+def load_ticker_data(ticker, data_path='../data', update=False,
                      start_history=None, end_history=None):
 
     data = None

@@ -9,8 +9,8 @@ def plot_ticker_ts(ticker, data, prediction):
                              mode='lines',
                              line_color='deepskyblue'))
 
-    fig.add_trace(go.Scatter(x=prediction_index,
-                             y=prediction_rescaled.flatten(),
+    fig.add_trace(go.Scatter(x=prediction.index,
+                             y=prediction.values,
                              name="Tensorflow forecast",
                              mode='lines',
                              line_color='green',
