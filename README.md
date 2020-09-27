@@ -12,4 +12,4 @@ Aim of the project is to develop a Deep Learning algorithm for time series forec
 - Model built using **Tensorflow Keras**
 - Hyperparameters optimisation using **Keras-Tuner**
 - Result visualisation using **Dash**
-- Other used technologies: Pandas, Numpy, Scikit-learn
+- Other packages: Pandas, Numpy, Scikit-learn
