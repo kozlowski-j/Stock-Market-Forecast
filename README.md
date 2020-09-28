@@ -1,4 +1,4 @@
-# Stock Market Forecast
+# Stock Market Price Forecast
 
 This is my final project for Data Science Bootcamp taking place in Warsaw, Poland from November 2019 till May 2020. 
 
@@ -8,7 +8,7 @@ Aim of the project is to develop a Deep Learning algorithm for time series forec
 
 ## 2. Project overview
 - Data comes from Wall Street S&P500 indexes
-- Data source is Yahoo Finance
+- Data source is Yahoo Finance API
 - Model built using **Tensorflow Keras**
 - Hyperparameters optimisation using **Keras-Tuner**
 - Result visualisation using **Dash**
@@ -21,3 +21,10 @@ Aim of the project is to develop a Deep Learning algorithm for time series forec
 - Dash app structure and layouts
   - https://dash.plotly.com/urls
   - https://dash-bootstrap-components.opensource.faculty.ai/docs/components/layout/
+
+## 4. Screenshots
+- App overview
+![screenshot_1](images/screenshot_1.png)
+
+- Zoom on prediction
+![screenshot_2](images/screenshot_2.png)
