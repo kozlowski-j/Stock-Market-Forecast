@@ -53,6 +53,6 @@ def plot_ticker_ts(ticker, data, prediction):
             autorange=True
         ),
         height=400,
-        width=800
+        width=1000
     )
     return fig

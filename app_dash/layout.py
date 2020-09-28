@@ -10,10 +10,8 @@ main_layout = html.Div(children=[
 
     html.H4(show_current_date()),
 
-    html.P(children='This dashboard is my learning effort during Machine Learning bootcamp. '
-                     'The ultimate purpose of creating it is learning prediction of time series data.'),
-
-    # html.H5(f'Presented data range is: {data.index.min()} - {data.index.max()}'),
+    html.P('This dashboard is my learning effort during Machine Learning bootcamp. '),
+    html.P('The ultimate purpose of creating it is learning prediction of time series data.'),
 
     html.Div(
         dcc.Dropdown(
@@ -31,8 +29,8 @@ main_layout = html.Div(children=[
     )],
 
     style=dict(
-        marginLeft='10%',
-        marginRight='10%',
+        marginLeft='20%',
+        marginRight='20%',
         marginTop='1%'
     )
 )
