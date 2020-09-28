@@ -2,7 +2,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 
-from utils import show_current_date
+from utils import show_current_date, get_tickers_dict
 
 
 main_layout = html.Div(children=[
@@ -16,15 +16,13 @@ main_layout = html.Div(children=[
     # html.H5(f'Presented data range is: {data.index.min()} - {data.index.max()}'),
 
     html.Div(
-        dbc.Col([
-            dcc.Dropdown(
-                id='ticker-dropdown',
-                options=[
-                    {'label': '^GSPC', 'value': '^GSPC'}
-                ],
-                value='^GSPC'
-            )],
-            width=2
+        dcc.Dropdown(
+            id='ticker-dropdown',
+            options=get_tickers_dict(),
+            value='^GSPC'
+        ),
+        style=dict(
+            width=200
         )
     ),
 

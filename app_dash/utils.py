@@ -166,3 +166,7 @@ def chunk_it(seq, num):
         last += avg
 
     return out
+
+
+def get_tickers_dict():
+    return [{'label': t, 'value': t} for t in si.tickers_sp500() + ['^GSPC']]
